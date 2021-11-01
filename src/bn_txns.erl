@@ -103,10 +103,10 @@ handle_rpc(<<"transaction_get">>, {Param}) ->
         {error, _} = Error ->
             ?jsonrpc_error(Error)
     end;
-handle_rpc(<<"transaction_submit">>, #{ <<"base64">> := B64 } = Params) ->
+handle_rpc(<<"transaction_submit">>, #{ <<"base64">> := B64 } = _Params) ->
     Bin = ?B64_TO_BIN(B64),
     Txn = blockchain_txn:deserialize(Bin),
-    Hash = blockchain_txn:hash(),
+    Hash = blockchain_txn:hash(Txn),
     lager:info("Submitting txn: ~p", [Txn]),
     ok = blockchain_worker:submit_txn(Txn),
     #{ <<"status">> => <<"ok">>, <<"hash">> => ?BIN_TO_B64(Hash) };
