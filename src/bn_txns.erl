@@ -103,9 +103,8 @@ handle_rpc(<<"transaction_get">>, {Param}) ->
         {error, _} = Error ->
             ?jsonrpc_error(Error)
     end;
-
-handle_rpc(<<"transaction_submit">>, #{ <<"base64">> := B64 } = _Params) ->
-    Bin = ?B64_TO_BIN(B64),
+handle_rpc(<<"transaction_submit">>, Param) ->
+    Bin = ?jsonrpc_b64_to_bin(<<"base64">>, Param),
     Txn = blockchain_txn:deserialize(Bin),
     Hash = blockchain_txn:hash(Txn),
     lager:info("Submitting txn: ~p", [Txn]),
@@ -113,7 +112,6 @@ handle_rpc(<<"transaction_submit">>, #{ <<"base64">> := B64 } = _Params) ->
     #{ <<"status">> => <<"ok">>, <<"hash">> => ?BIN_TO_B64(Hash) };
 handle_rpc(Method, _) ->
     lager:info("unknown method: ~p", [Method]),
-
     ?jsonrpc_error(method_not_found).
 
 %%
