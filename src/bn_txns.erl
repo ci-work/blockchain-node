@@ -116,8 +116,8 @@ handle_rpc(<<"transaction_verify">>, {Param}) ->
     Valid = blockchain_txn:is_valid(Txn, blockchain_worker:blockchain()),
     lager:info("Validity of txn: ~p", [Valid]),
     case Valid of
-        ok ->  #{ <<"is_valid">> => <<"true">> };
-        {error, Reason} -> #{ <<"is_valid">> => <<"false">>, <<"reason">> => Reason }
+        ok ->  #{ <<"is_valid">> => true };
+        {error, Reason} -> #{ <<"is_valid">> => false, <<"reason">> => Reason }
     end;
 handle_rpc(Method, _) ->
     lager:info("unknown method: ~p", [Method]),
