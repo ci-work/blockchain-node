@@ -113,7 +113,7 @@ handle_rpc(<<"transaction_submit">>, {Param}) ->
 handle_rpc(<<"transaction_verify">>, {Param}) ->
     Bin = ?jsonrpc_b64_to_bin(<<"base64">>, Param),
     Txn = blockchain_txn:deserialize(Bin),
-    Valid = blockchain_txn:is_valid(Txn, blockchain:blockchain()),
+    Valid = blockchain_txn:is_valid(Txn),
     lager:info("Validity of txn: ~p", [Valid]),
     case Valid of
         ok ->  #{ <<"is_valid">> => <<"true">> };
