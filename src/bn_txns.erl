@@ -113,11 +113,11 @@ handle_rpc(<<"transaction_submit">>, {Param}) ->
 handle_rpc(<<"transaction_verify">>, {Param}) ->
     Bin = ?jsonrpc_b64_to_bin(<<"base64">>, Param),
     Txn = blockchain_txn:deserialize(Bin),
-    Valid = blockchain_txn:is_valid(Txn),
+    Valid = blockchain_txn:is_valid(Txn, blockchain_worker:blockchain()),
     lager:info("Validity of txn: ~p", [Valid]),
     case Valid of
         ok ->  #{ <<"is_valid">> => <<"true">> };
-        {error, _} -> #{ <<"is_valid">> => <<"false">> }
+        {error, Reason} -> #{ <<"is_valid">> => <<"false">>, <<"reason">> => Reason }
     end;
 handle_rpc(Method, _) ->
     lager:info("unknown method: ~p", [Method]),
