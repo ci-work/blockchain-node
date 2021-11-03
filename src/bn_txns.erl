@@ -117,8 +117,8 @@ handle_rpc(<<"transaction_verify">>, {Param}) ->
     lager:info("Validity of txn: ~p", [Valid]),
     case Valid of
         ok ->  #{ <<"is_valid">> => true };
-        {error, Reason} ->
-            ReasonStr = io_lib:format("~p", Reason),
+        {error, _Reason} ->
+            %%ReasonStr = io_lib:format("~p", Reason),
             #{ <<"is_valid">> => false } %%, <<"reason">> => ReasonStr }
     end;
 handle_rpc(Method, _) ->
