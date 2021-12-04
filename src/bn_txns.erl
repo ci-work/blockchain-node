@@ -189,9 +189,11 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
                 true ->
                     Json =
                         try
-                            blockchain_txn:to_json(Txn, [{ledger, Ledger}, {chain, Chain}])
+                            blockchain_txn:to_json(Txn, [{ledger, Ledger}, {chain, Chain}]),
+                            lager:info("blockchain_txn:to_json with ledger, chain success")
                         catch
                             _:_ ->
+                                lager:info("blockchain_txn:to_json catch"),
                                 blockchain_txn:to_json(Txn, [])
                         end,
                     ok = rocksdb:batch_put(
