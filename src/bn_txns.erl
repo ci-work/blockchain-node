@@ -201,15 +201,14 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
                         jsone:encode(Json#{block => Height}, [undefined_as_null])
                     );
                 _ ->
-                    ok
+                    ok = rocksdb:batch_put(
+                        Batch,
+                        TransactionsCF,
+                        Hash,
+                        blockchain_txn:serialize(Txn)
+                    )
             end,
-
-            ok = rocksdb:batch_put(
-                Batch,
-                TransactionsCF,
-                Hash,
-                blockchain_txn:serialize(Txn)
-            ),
+            
             ok = rocksdb:batch_put(Batch, HeightsCF, Hash, HeightBin)
         end,
         Transactions
