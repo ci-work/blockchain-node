@@ -310,7 +310,7 @@ to_json(<<"state_channel_close_v1">>, T, Opts) ->
 to_json(<<"rewards_v2">>, T, Opts) ->
     lager:info("in rewards v2"),
     {ledger, Ledger} = lists:keyfind(ledger, 1, Opts),
-    {chain, Chain} = lists:keyfind(chain, 1, Opts),
+    {chain, Chain} = blockchain_worker:blockchain(),
     lager:info("got chain"),
     Start = blockchain_txn_rewards_v2:start_epoch(T),
     End = blockchain_txn_rewards_v2:end_epoch(T),
