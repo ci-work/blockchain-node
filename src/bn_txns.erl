@@ -223,7 +223,6 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
 
 to_json(T, Opts) ->
     Type = blockchain_txn:json_type(T),
-    lager:info("got type ~p", [Type]),
     to_json(Type, T, Opts).
 
 to_json(<<"rewards_v2">>, T, Opts) ->
