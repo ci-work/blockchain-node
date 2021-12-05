@@ -223,12 +223,16 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
 
 to_json(T, Opts) ->
     Type = blockchain_txn:json_type(T),
+    lager:info("got type ~p", [Type]),
     to_json(Type, T, Opts).
 
 to_json(<<"rewards_v2">>, T, Opts) ->
+    lager:info("in rewards v2"),
     {chain, Chain} = lists:keyfind(chain, 1, Opts),
+    lager:info("got chain"),
     Start = blockchain_txn_rewards_v2:start_epoch(T),
     End = blockchain_txn_rewards_v2:end_epoch(T),
+    lager:info("start ~p and end ~p", [Start, End]),
     StartTime = erlang:monotonic_time(millisecond),
     {ok, Metadata} = blockchain_txn_rewards_v2:calculate_rewards_metadata(
         Start,
