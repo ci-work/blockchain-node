@@ -309,6 +309,7 @@ to_json(<<"state_channel_close_v1">>, T, Opts) ->
 
 to_json(<<"rewards_v2">>, T, Opts) ->
     lager:info("in rewards v2"),
+    {ledger, Ledger} = lists:keyfind(ledger, 1, Opts),
     {chain, Chain} = lists:keyfind(chain, 1, Opts),
     lager:info("got chain"),
     Start = blockchain_txn_rewards_v2:start_epoch(T),
@@ -318,7 +319,7 @@ to_json(<<"rewards_v2">>, T, Opts) ->
     {ok, Metadata} = blockchain_txn_rewards_v2:calculate_rewards_metadata(
         Start,
         End,
-        Chain
+        blockchain:ledger(Ledger, Chain)
     ),
     EndTime = erlang:monotonic_time(millisecond),
     lager:info("Calculated rewards metadata took: ~p ms", [EndTime - StartTime]),
