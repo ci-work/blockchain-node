@@ -248,7 +248,7 @@ to_json(<<"poc_receipts_v1">>, T, Opts) ->
         WitnessLoc = blockchain_ledger_gateway_v2:location(WitnessInfo),
         WitnessJson#{
             owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(WitnessInfo)),
-            location => ?MAYBE_H3(WitnessLoc)
+            location => maybe_h3(WitnessLoc)
         }
     end,
 
@@ -262,7 +262,7 @@ to_json(<<"poc_receipts_v1">>, T, Opts) ->
             challengee_owner => ?BIN_TO_B58(
                 blockchain_ledger_gateway_v2:owner_address(ChallengeeInfo)
             ),
-            challengee_location => ?MAYBE_H3(ChallengeeLoc),
+            challengee_location => maybe_h3(ChallengeeLoc),
             witnesses => [UpdateWitness(W) || W <- Witnesses]
         }
     end,
@@ -271,7 +271,7 @@ to_json(<<"poc_receipts_v1">>, T, Opts) ->
     ChallengerLoc = blockchain_ledger_gateway_v2:location(ChallengerInfo),
     Json#{
         challenger_owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(ChallengerInfo)),
-        challenger_location => ?MAYBE_H3(ChallengerLoc),
+        challenger_location => maybe_h3(ChallengerLoc),
         path => [UpdatePath(E) || E <- Path]
     };
 
@@ -287,7 +287,7 @@ to_json(<<"state_channel_close_v1">>, T, Opts) ->
                 ClientLoc = blockchain_ledger_gateway_v2:location(ClientInfo),
                 Summary#{
                     owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(ClientInfo)),
-                    location => ?MAYBE_H3(ClientLoc)
+                    location => maybe_h3(ClientLoc)
                 }
         end
     end,
