@@ -186,7 +186,7 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
 }) ->
     {ok, Batch} = rocksdb:batch(),
     HeightBin = <<Height:64/integer-unsigned-little>>,
-    JsonOpts = [{ledger, Ledger}, {chain, blockchain_worker:blockchain()}],
+    JsonOpts = [{ledger, Ledger}, {chain, Chain}],
     lists:foreach(
         fun(Txn) ->
             Hash = blockchain_txn:hash(Txn),
