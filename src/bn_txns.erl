@@ -15,6 +15,7 @@
     load_chain/2,
     load_block/5,
     terminate/2,
+    maybe_fn/2,
     maybe_h3/1,
     to_json/2,
     to_json/3
@@ -221,6 +222,14 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
     ),
     bn_db:batch_put_follower_height(Batch, DefaultCF, Height),
     rocksdb:write_batch(DB, Batch, [{sync, true}]).
+
+-spec maybe_fn(fun((any()) -> any()), undefined | null | any()) -> undefined | any().
+maybe_fn(_Fun, undefined) ->
+    undefined;
+maybe_fn(_Fun, null) ->
+    undefined;
+maybe_fn(Fun, V) ->
+    Fun(V).
 
 -spec maybe_h3(undefined | h3:h3index()) -> undefined | binary().
 maybe_h3(V) ->
