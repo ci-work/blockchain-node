@@ -237,7 +237,7 @@ to_json(<<"poc_request_v1">>, T, Opts) ->
     ChallengerLoc = blockchain_ledger_gateway_v2:location(ChallengerInfo),
     Json#{
         challenger_owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(ChallengerInfo)),
-        challenger_location => ?MAYBE_H3(ChallengerLoc)
+        challenger_location => maybe_h3(ChallengerLoc)
     };
 
 to_json(<<"poc_receipts_v1">>, T, Opts) ->
