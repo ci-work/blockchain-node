@@ -14,7 +14,9 @@
     follower_height/1,
     load_chain/2,
     load_block/5,
-    terminate/2
+    terminate/2,
+    to_json/2,
+    to_json/3
 ]).
 
 %% jsonrpc_handler
@@ -182,6 +184,7 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
 }) ->
     {ok, Batch} = rocksdb:batch(),
     HeightBin = <<Height:64/integer-unsigned-little>>,
+    JsonOpts = [{ledger, Ledger}, {chain, Chain}],
     lists:foreach(
         fun(Txn) ->
             Hash = blockchain_txn:hash(Txn),
@@ -189,7 +192,7 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
                 true ->
                     Json =
                         try
-                            blockchain_txn:to_json(Txn, [{ledger, Ledger}, {chain, Chain}])
+                            to_json(Txn, JsonOpts)
                         catch
                             _:_ ->
                                 lager:info("blockchain_txn:to_json catch"),
@@ -217,6 +220,27 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
     ),
     bn_db:batch_put_follower_height(Batch, DefaultCF, Height),
     rocksdb:write_batch(DB, Batch, [{sync, true}]).
+
+to_json(T, Opts) ->
+    Type = blockchain_txn:json_type(T),
+    to_json(Type, T, Opts).
+
+to_json(<<"rewards_v2">>, T, Opts) ->
+    {chain, Chain} = lists:keyfind(chain, 1, Opts),
+    Start = blockchain_txn_rewards_v2:start_epoch(T),
+    End = blockchain_txn_rewards_v2:end_epoch(T),
+    StartTime = erlang:monotonic_time(millisecond),
+    {ok, Metadata} = blockchain_txn_rewards_v2:calculate_rewards_metadata(
+        Start,
+        End,
+        Chain
+    ),
+    EndTime = erlang:monotonic_time(millisecond),
+    lager:info("Calculated rewards metadata took: ~p ms", [EndTime - StartTime]),
+    blockchain_txn:to_json(T, Opts ++ [{rewards_metadata, Metadata}]);
+
+to_json(_Type, T, Opts) ->
+    blockchain_txn:to_json(T, Opts).
 
 -spec load_db(file:filename_all()) -> {ok, #state{}} | {error, any()}.
 load_db(Dir) ->
