@@ -15,6 +15,7 @@
     load_chain/2,
     load_block/5,
     terminate/2,
+    maybe_h3/1,
     to_json/2,
     to_json/3
 ]).
@@ -220,6 +221,10 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
     ),
     bn_db:batch_put_follower_height(Batch, DefaultCF, Height),
     rocksdb:write_batch(DB, Batch, [{sync, true}]).
+
+-spec maybe_h3(undefined | h3:h3index()) -> undefined | binary().
+maybe_h3(V) ->
+    maybe_fn(fun(I) -> list_to_binary(h3:to_string(I)) end, V).
 
 to_json(T, Opts) ->
     Type = blockchain_txn:json_type(T),
