@@ -314,11 +314,13 @@ to_json(<<"rewards_v2">>, T, Opts) ->
     Start = blockchain_txn_rewards_v2:start_epoch(T),
     End = blockchain_txn_rewards_v2:end_epoch(T),
     lager:info("start ~p and end ~p", [Start, End]),
+    {ok, Ledger} = blockchain:ledger_at(End, Chain),
+    lager:info("got ledger at"),
     StartTime = erlang:monotonic_time(millisecond),
     {ok, Metadata} = blockchain_txn_rewards_v2:calculate_rewards_metadata(
         Start,
         End,
-        Chain
+        blockchain:ledger(Ledger, Chain)
     ),
     EndTime = erlang:monotonic_time(millisecond),
     lager:info("Calculated rewards metadata took: ~p ms", [EndTime - StartTime]),
