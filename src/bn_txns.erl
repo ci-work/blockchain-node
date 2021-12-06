@@ -187,13 +187,7 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
             Hash = blockchain_txn:hash(Txn),
             case application:get_env(blockchain, store_json, false) of
                 true ->
-                    Json =
-                        try
-                            blockchain_txn:to_json(Txn, [{ledger, Ledger}, {chain, Chain}])
-                        catch
-                            _:_ ->
-                                blockchain_txn:to_json(Txn, [])
-                        end,
+                    Json = blockchain_txn:to_json(Txn, [{ledger, Ledger}, {chain, Chain}]),
                     ok = rocksdb:batch_put(
                         Batch,
                         JsonCF,
