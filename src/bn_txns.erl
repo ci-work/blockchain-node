@@ -89,6 +89,7 @@ load_block(_Hash, Block, _Sync, _Ledger, State = #state{}) ->
         Chain,
         State
     ),
+    lager:info("Saved ~p transactions at height", [length(Transactions), BlockHeight]),
     {ok, State}.
 
 terminate(_Reason, #state{db = DB}) ->
@@ -308,12 +309,9 @@ to_json(<<"state_channel_close_v1">>, T, Opts) ->
     };
 
 to_json(<<"rewards_v2">>, T, Opts) ->
-    lager:info("in rewards v2"),
     {chain, Chain} = lists:keyfind(chain, 1, Opts),
-    lager:info("got chain"),
     Start = blockchain_txn_rewards_v2:start_epoch(T),
     End = blockchain_txn_rewards_v2:end_epoch(T),
-    lager:info("start ~p and end ~p", [Start, End]),
     StartTime = erlang:monotonic_time(millisecond),
     {ok, Metadata} = blockchain_txn_rewards_v2:calculate_rewards_metadata(
         Start,
