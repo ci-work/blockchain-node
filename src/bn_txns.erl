@@ -89,7 +89,7 @@ load_block(_Hash, Block, _Sync, _Ledger, State = #state{}) ->
         Chain,
         State
     ),
-    lager:info("Saved ~p transactions at height", [length(Transactions), BlockHeight]),
+    lager:info("Saved ~p transactions at height ~p", [length(Transactions), BlockHeight]),
     {ok, State}.
 
 terminate(_Reason, #state{db = DB}) ->
