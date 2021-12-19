@@ -11,8 +11,8 @@
 handle_rpc(<<"peer_book_self">>, []) ->
     peer_book_response(blockchain_swarm:pubkey_bin());
 handle_rpc(<<"peer_book_address">>, {Param}) ->
-    Address = ?jsonrpc_b58_to_bin(<<"address">>, Param),
-    peer_book_response(libp2p_crypto:p2p_to_pubkey_bin(Address));
+    BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
+    peer_book_response(BinAddress);
 handle_rpc(_, _) ->
     ?jsonrpc_error(method_not_found).
 
