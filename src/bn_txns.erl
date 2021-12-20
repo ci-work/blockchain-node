@@ -14,9 +14,7 @@
     follower_height/1,
     load_chain/2,
     load_block/5,
-    terminate/2,
-    to_json/2,
-    to_json/3
+    terminate/2
 ]).
 
 %% jsonrpc_handler
