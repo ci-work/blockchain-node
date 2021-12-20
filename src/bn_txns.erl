@@ -15,8 +15,6 @@
     load_chain/2,
     load_block/5,
     terminate/2,
-    maybe_fn/2,
-    maybe_h3/1,
     to_json/2,
     to_json/3
 ]).
@@ -195,7 +193,7 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
                 true ->
                     Json =
                         try
-                            to_json(Txn, JsonOpts)
+                            blockchain_txn:to_json(Txn, JsonOpts)
                         catch
                             _:_ ->
                                 TxnType = blockchain_txn:json_type(Txn),
@@ -224,39 +222,6 @@ save_transactions(Height, Transactions, Ledger, Chain, #state{
     ),
     bn_db:batch_put_follower_height(Batch, DefaultCF, Height),
     rocksdb:write_batch(DB, Batch, [{sync, true}]).
-
--spec maybe_fn(fun((any()) -> any()), undefined | null | any()) -> undefined | any().
-maybe_fn(_Fun, undefined) ->
-    undefined;
-maybe_fn(_Fun, null) ->
-    undefined;
-maybe_fn(Fun, V) ->
-    Fun(V).
-
--spec maybe_h3(undefined | h3:h3index()) -> undefined | binary().
-maybe_h3(V) ->
-    maybe_fn(fun(I) -> list_to_binary(h3:to_string(I)) end, V).
-
-to_json(T, Opts) ->
-    Type = blockchain_txn:json_type(T),
-    to_json(Type, T, Opts).
-
-to_json(<<"rewards_v2">>, T, Opts) ->
-    {chain, Chain} = lists:keyfind(chain, 1, Opts),
-    Start = blockchain_txn_rewards_v2:start_epoch(T),
-    End = blockchain_txn_rewards_v2:end_epoch(T),
-    StartTime = erlang:monotonic_time(millisecond),
-    {ok, Metadata} = blockchain_txn_rewards_v2:calculate_rewards_metadata(
-        Start,
-        End,
-        Chain
-    ),
-    EndTime = erlang:monotonic_time(millisecond),
-    lager:info("Calculated rewards metadata took: ~p ms", [EndTime - StartTime]),
-    blockchain_txn:to_json(T, Opts ++ [{rewards_metadata, Metadata}]);
-
-to_json(_Type, T, Opts) ->
-    blockchain_txn:to_json(T, Opts).
 
 -spec load_db(file:filename_all()) -> {ok, #state{}} | {error, any()}.
 load_db(Dir) ->
