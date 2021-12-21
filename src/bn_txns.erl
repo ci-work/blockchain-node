@@ -49,10 +49,12 @@ init(Args) ->
     end.
 
 follower_height(#state{db = DB, default = DefaultCF}) ->
-    case bn_db:get_follower_height(DB, DefaultCF) of
+    FollowerHeight = case bn_db:get_follower_height(DB, DefaultCF) of
         {ok, Height} -> Height;
         {error, _} = Error -> ?jsonrpc_error(Error)
-    end.
+    end,
+    Height = application:get_env(blockchain, force_follower_height, FollowerHeight),
+    Height.
 
 load_chain(Chain, State = #state{}) ->
     maybe_load_genesis(Chain, State).
