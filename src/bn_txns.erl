@@ -55,8 +55,8 @@ follower_height(#state{db = DB, default = DefaultCF}) ->
             lager:info("ForcedHeight: ~p, Height: ~p", [ForcedHeight, Height]),
             UseHeight = case ForcedHeight of
                             X when X == 0 -> Height;
-                            X when X < Height -> ForcedHeight;
-                            X when X >= Height ->
+                            X when X > Height -> ForcedHeight;
+                            X when X =< Height ->
                               application:set_env(blockchain, force_follower_height, 0),
                               Height
                         end,
