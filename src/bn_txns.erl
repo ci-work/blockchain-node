@@ -59,7 +59,7 @@ follower_height(#state{db = DB, default = DefaultCF}) ->
                               application:set_env(blockchain, force_follower_height, 0),
                               Height
                         end,
-            lager:info("ForcedHeight: ~p, Height: ~p, UseHeight: ~p", [application:get_env(blockchain, force_follower_height), Height, UseHeight])
+            lager:info("ForcedHeight: ~p, Height: ~p, UseHeight: ~p", [application:get_env(blockchain, force_follower_height), Height, UseHeight]),
             UseHeight;
         {error, _} = Error -> ?jsonrpc_error(Error)
     end.
