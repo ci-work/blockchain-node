@@ -74,7 +74,6 @@ maybe_load_genesis(Chain, State = #state{}) ->
     end.
 
 load_block(_Hash, Block, _Sync, _Ledger, State = #state{}) ->
-    application:set_env(blockchain, block_absorb, true),
     BlockHeight = blockchain_block_v1:height(Block),
     Transactions = blockchain_block:transactions(Block),
     lager:info("Loading Block ~p (~p transactions)", [BlockHeight, length(Transactions)]),
@@ -87,7 +86,6 @@ load_block(_Hash, Block, _Sync, _Ledger, State = #state{}) ->
         State
     ),
     lager:info("Saved ~p transactions at height ~p", [length(Transactions), BlockHeight]),
-    application:set_env(blockchain, block_absorb, false),
     {ok, State}.
 
 terminate(_Reason, #state{db = DB}) ->
