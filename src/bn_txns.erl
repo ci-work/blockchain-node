@@ -55,9 +55,9 @@ follower_height(#state{db = DB, default = DefaultCF}) ->
             UseHeight = case ForcedHeight of
                             X when X == 0 -> Height;
                             X when X < Height -> ForcedHeight;
-                            X when X >= 0 ->
+                            X when X == Height ->
                               application:set_env(blockchain, force_follower_height, 0),
-                              ForcedHeight
+                              Height
                         end,
             UseHeight;
         {error, _} = Error -> ?jsonrpc_error(Error)
