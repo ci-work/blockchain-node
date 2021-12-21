@@ -52,7 +52,6 @@ follower_height(#state{db = DB, default = DefaultCF}) ->
     case bn_db:get_follower_height(DB, DefaultCF) of
         {ok, Height} -> 
             ForcedHeight = application:get_env(blockchain, force_follower_height, 0),
-            lager:info("ForcedHeight: ~p, Height: ~p", [ForcedHeight, Height]),
             UseHeight = case ForcedHeight of
                             X when X == 0 -> Height;
                             X when X > Height -> ForcedHeight;
@@ -60,8 +59,6 @@ follower_height(#state{db = DB, default = DefaultCF}) ->
                               application:set_env(blockchain, force_follower_height, 0),
                               Height
                         end,
-            PostForcedHeight = application:get_env(blockchain, force_follower_height, 0),
-            lager:info("ForcedHeight: ~p, Height: ~p, UseHeight: ~p", [PostForcedHeight, Height, UseHeight]),
             UseHeight;
         {error, _} = Error -> ?jsonrpc_error(Error)
     end.
