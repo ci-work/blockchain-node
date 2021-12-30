@@ -24,11 +24,18 @@ peer_book_response(PubKeyBin) ->
     Peerbook = libp2p_swarm:peerbook(TID),
 
     {ok, Peer} = libp2p_peerbook:get(Peerbook, PubKeyBin),
-    [ lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
+    case libp2p_peerbook:get(Peerbook, PubKeyBin) of
+        {ok, Peer} ->
+            [ lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
                 format_peer(Peer),
                 [format_listen_addrs(TID, libp2p_peer:listen_addrs(Peer)),
                     format_peer_sessions(TID)]
-                ) ].
+                ) ];
+        {error, not_found} ->
+            ?jsonrpc_error({not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]});
+        {error, _}=Error ->
+            ?jsonrpc_error(Error)
+    end.
 
 format_peer(Peer) ->
     ListenAddrs = libp2p_peer:listen_addrs(Peer),
