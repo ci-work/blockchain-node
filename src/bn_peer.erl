@@ -23,7 +23,6 @@ peer_book_response(PubKeyBin) ->
     TID = blockchain_swarm:tid(),
     Peerbook = libp2p_swarm:peerbook(TID),
 
-    {ok, Peer} = libp2p_peerbook:get(Peerbook, PubKeyBin),
     case libp2p_peerbook:get(Peerbook, PubKeyBin) of
         {ok, Peer} ->
             [ lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
