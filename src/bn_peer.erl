@@ -16,6 +16,12 @@ handle_rpc(<<"peer_book_address">>, {Param}) ->
 handle_rpc(<<"peer_connect">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_connect(BinAddress);
+handle_rpc(<<"peer_ping">>, {Param}) ->
+    BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
+    peer_ping(BinAddress);
+handle_rpc(<<"peer_refresh">>, {Param}) ->
+    BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
+    peer_refresh(BinAddress);
 handle_rpc(_, _) ->
     ?jsonrpc_error(method_not_found).
 
@@ -27,10 +33,32 @@ peer_connect(PubKeyBin) ->
     P2PAddr = libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin),
     case libp2p_swarm:connect(SwarmTID, P2PAddr) of
         {ok, _} ->
-            #{status => ?TO_VALUE("connected"), address => ?TO_VALUE(P2PAddr)};
+            #{success => true, success_string => ?TO_VALUE("connected"), address => ?TO_VALUE(P2PAddr)};
         {error, Reason} ->
             ?jsonrpc_error({not_found, "Failed to connect to ~p: ~p~n", [P2PAddr, Reason]})
     end.
+
+peer_ping(PubKeyBin) ->
+    SwarmTID = blockchain_swarm:tid(),
+    P2PAddr = libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin),
+    case libp2p_swarm:connect(SwarmTID, P2PAddr) of
+        {ok, Session} ->
+            case libp2p_session:ping(Session) of
+                {ok, RTT} ->
+                    #{success => true, success_string => ?TO_VALUE("pinged"), rtt => RTT, address => ?TO_VALUE(P2PAddr)};
+                {error, Reason} ->
+                    ?jsonrpc_error({not_found, "Failed to connect to ~p: ~p~n", [P2PAddr, Reason]})
+            end;
+        {error, Reason} ->
+            ?jsonrpc_error({not_found, "Failed to connect to ~p: ~p~n", [P2PAddr, Reason]})
+    end.
+
+peer_refresh(PubKeyBin) ->
+    SwarmTID = blockchain_swarm:tid(),
+    P2PAddr = libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin),
+    Peerbook = libp2p_swarm:peerbook(SwarmTID),
+    libp2p_peerbook:refresh(Peerbook, PubKeyBin),
+    #{success => true, success_string => ?TO_VALUE("refreshed"), address => ?TO_VALUE(P2PAddr)}.
 
 peer_book_response(PubKeyBin) ->
     TID = blockchain_swarm:tid(),
