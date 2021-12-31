@@ -24,7 +24,7 @@ handle_rpc(_, _) ->
 %%
 peer_connect(PubKeyBin) ->
     SwarmTID = blockchain_swarm:tid(),
-    P2PAddr = libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)
+    P2PAddr = libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin),
     case libp2p_swarm:connect(SwarmTID, P2PAddr) of
         {ok, _} ->
             #{status => "connected", address => P2PAddr};
