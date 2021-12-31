@@ -30,7 +30,7 @@ peer_connect(PubKeyBin) ->
             #{status => "connected", address => P2PAddr};
         {error, Reason} ->
             ?jsonrpc_error({not_found, "Failed to connect to ~p: ~p~n", [P2PAddr, Reason]})
-    end;
+    end.
 
 peer_book_response(PubKeyBin) ->
     TID = blockchain_swarm:tid(),
