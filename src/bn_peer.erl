@@ -100,11 +100,13 @@ format_peer(Peer) ->
     NatType = libp2p_peer:nat_type(Peer),
     Timestamp = libp2p_peer:timestamp(Peer),
     PeerHeight = peer_height(Peer),
+    PeerLastBlockTime = last_block_add_time(Peer),
     Bin = libp2p_peer:pubkey_bin(Peer),
     M = #{
         <<"address">> => libp2p_crypto:pubkey_bin_to_p2p(Bin),
         <<"name">> => ?BIN_TO_ANIMAL(Bin),
         <<"height">> => PeerHeight,
+        <<"last_block_add_time">> => PeerLastBlockTime,
         <<"listen_addr_count">> => length(ListenAddrs),
         <<"connection_count">> => length(ConnectedTo),
         <<"nat">> => NatType,
@@ -156,6 +158,20 @@ peer_height(Peer) ->
             Height;
         Other ->
             lager:warning("Invalid block height for gateway ~s: ~p", [
+                libp2p_crypto:pubkey_bin_to_p2p(libp2p_peer:pubkey_bin(Peer)),
+                Other
+            ]),
+            undefined
+    end.
+
+last_block_add_time(Peer) ->
+    case peer_metadata(<<"last_block_add_time">>, Peer) of
+        undefined ->
+            undefined;
+        LBAT when is_integer(LBAT) ->
+            LBAT;
+        Other ->
+            lager:warning("last_block_add_time", [
                 libp2p_crypto:pubkey_bin_to_p2p(libp2p_peer:pubkey_bin(Peer)),
                 Other
             ]),
