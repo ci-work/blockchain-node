@@ -12,7 +12,7 @@ handle_rpc(<<"peer_book_self">>, []) ->
     peer_book_response(blockchain_swarm:pubkey_bin());
 handle_rpc(<<"peer_book_address">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
-    peer_book_response(BinAddress);
+    peer_book_response_self(BinAddress);
 handle_rpc(<<"peer_connect">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_connect(BinAddress);
@@ -60,7 +60,7 @@ peer_refresh(PubKeyBin) ->
     libp2p_peerbook:refresh(Peerbook, PubKeyBin),
     #{success => true, success_string => ?TO_VALUE("refreshed"), address => ?TO_VALUE(P2PAddr)}.
 
-peer_book_response(PubKeyBin) ->
+peer_book_response_self(PubKeyBin) ->
     TID = blockchain_swarm:tid(),
     Peerbook = libp2p_swarm:peerbook(TID),
 
@@ -70,6 +70,23 @@ peer_book_response(PubKeyBin) ->
                 format_peer(Peer),
                 [format_listen_addrs(TID, libp2p_peer:listen_addrs(Peer)),
                     format_peer_sessions(TID)]
+                ) ];
+        {error, not_found} ->
+            ?jsonrpc_error({not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]});
+        {error, _}=Error ->
+            ?jsonrpc_error(Error)
+    end.
+
+peer_book_response(PubKeyBin) ->
+    TID = blockchain_swarm:tid(),
+    Peerbook = libp2p_swarm:peerbook(TID),
+
+    case libp2p_peerbook:get(Peerbook, PubKeyBin) of
+        {ok, Peer} ->
+            [ lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
+                format_peer(Peer),
+                [format_listen_addrs(TID, libp2p_peer:listen_addrs(Peer)),
+                    format_peer_connections(Peer)]
                 ) ];
         {error, not_found} ->
             ?jsonrpc_error({not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]});
@@ -98,6 +115,11 @@ format_peer(Peer) ->
 format_listen_addrs(TID, Addrs) ->
     libp2p_transport:sort_addrs(TID, Addrs),
     #{<<"listen_addresses">> => [?TO_VALUE(A) || A <- Addrs]}.
+
+format_peer_connections(Peer) ->
+    Connections = [[{connections, libp2p_crypto:pubkey_bin_to_p2p(P)}]
+                   || P <- libp2p_peer:connected_peers(Peer)],
+    #{ <<"sessions">> => Connections }.
 
 format_peer_sessions(Swarm) ->
     SessionInfos = libp2p_swarm:sessions(Swarm),
