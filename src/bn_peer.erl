@@ -117,9 +117,8 @@ format_listen_addrs(TID, Addrs) ->
     #{<<"listen_addresses">> => [?TO_VALUE(A) || A <- Addrs]}.
 
 format_peer_connections(Peer) ->
-    Connections = [[{connections, libp2p_crypto:pubkey_bin_to_p2p(P)}]
-                   || P <- libp2p_peer:connected_peers(Peer)],
-    #{ <<"sessions">> => Connections }.
+    Connections = [ libp2p_crypto:pubkey_bin_to_p2p(P) || P <- libp2p_peer:connected_peers(Peer)],
+    #{ <<"connections">> => [?TO_VALUE(C) || C <- Connections] }.
 
 format_peer_sessions(Swarm) ->
     SessionInfos = libp2p_swarm:sessions(Swarm),
