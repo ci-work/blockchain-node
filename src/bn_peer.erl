@@ -107,6 +107,7 @@ format_peer(Peer) ->
         <<"name">> => ?BIN_TO_ANIMAL(Bin),
         <<"height">> => PeerHeight,
         <<"last_block_add_time">> => PeerLastBlockTime,
+        <<"last_update_time">> => Timestamp,
         <<"listen_addr_count">> => length(ListenAddrs),
         <<"connection_count">> => length(ConnectedTo),
         <<"nat">> => NatType,
