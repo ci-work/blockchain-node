@@ -9,10 +9,10 @@
 %% jsonrpc_handler
 %%
 handle_rpc(<<"peer_book_self">>, []) ->
-    peer_book_response(blockchain_swarm:pubkey_bin());
+    peer_book_response_self(blockchain_swarm:pubkey_bin());
 handle_rpc(<<"peer_book_address">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
-    peer_book_response_self(BinAddress);
+    peer_book_response(BinAddress);
 handle_rpc(<<"peer_connect">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_connect(BinAddress);
