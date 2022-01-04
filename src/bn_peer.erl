@@ -43,8 +43,6 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
                 last_poc_onion_key_hash => ?BIN_TO_B64(blockchain_ledger_gateway_v2:last_poc_onion_key_hash(GWInfo)),
                 nonce => blockchain_ledger_gateway_v2:nonce(GWInfo),
                 version => blockchain_ledger_gateway_v2:version(GWInfo),
-                neighbors => blockchain_ledger_gateway_v2:neighbors(GWInfo),
-                witnesses => blockchain_ledger_gateway_v2:witnesses(GWInfo),
                 oui => blockchain_ledger_gateway_v2:oui(GWInfo),
                 gain => blockchain_ledger_gateway_v2:gain(GWInfo),
                 elevation => blockchain_ledger_gateway_v2:elevation(GWInfo),
@@ -101,11 +99,11 @@ peer_book_response_self(PubKeyBin) ->
 
     case libp2p_peerbook:get(Peerbook, PubKeyBin) of
         {ok, Peer} ->
-            [ lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
+            lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
                 format_peer(Peer),
                 [format_listen_addrs(TID, libp2p_peer:listen_addrs(Peer)),
                     format_peer_sessions(TID)]
-                ) ];
+            );
         {error, not_found} ->
             ?jsonrpc_error({not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]});
         {error, _}=Error ->
@@ -118,11 +116,11 @@ peer_book_response(PubKeyBin) ->
 
     case libp2p_peerbook:get(Peerbook, PubKeyBin) of
         {ok, Peer} ->
-            [ lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
+            lists:foldl(fun(M, Acc) -> maps:merge(Acc, M) end,
                 format_peer(Peer),
                 [format_listen_addrs(TID, libp2p_peer:listen_addrs(Peer)),
                     format_peer_connections(Peer)]
-                ) ];
+             );
         {error, not_found} ->
             ?jsonrpc_error({not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]});
         {error, _}=Error ->
