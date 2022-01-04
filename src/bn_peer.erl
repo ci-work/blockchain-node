@@ -47,7 +47,8 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
                 gain => blockchain_ledger_gateway_v2:gain(GWInfo),
                 elevation => blockchain_ledger_gateway_v2:elevation(GWInfo),
                 mode => blockchain_ledger_gateway_v2:mode(GWInfo),
-                last_location_nonce => blockchain_ledger_gateway_v2:last_location_nonce(GWInfo)
+                last_location_nonce => blockchain_ledger_gateway_v2:last_location_nonce(GWInfo),
+                peer_info => peer_book_response(Address)
             };
         {error, E} ->
             ?jsonrpc_error({error, "unable to retrieve account details for ~p due to error: ~p", [?BIN_TO_B58(Address), E]});
