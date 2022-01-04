@@ -34,7 +34,8 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
     case blockchain_ledger_v1:find_gateway_info(Address, Ledger) of
         {ok, GWInfo} ->
             #{
-                owner_address => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(GWInfo)),
+                address => ?BIN_TO_B58(Address),  
+                owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(GWInfo)),
                 location => ?MAYBE_H3(blockchain_ledger_gateway_v2:location(GWInfo)),
                 alpha => blockchain_ledger_gateway_v2:alpha(GWInfo),
                 beta => blockchain_ledger_gateway_v2:beta(GWInfo),
