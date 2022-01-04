@@ -10,18 +10,53 @@
 %%
 handle_rpc(<<"peer_book_self">>, []) ->
     peer_book_response_self(blockchain_swarm:pubkey_bin());
+
 handle_rpc(<<"peer_book_address">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_book_response(BinAddress);
+
 handle_rpc(<<"peer_connect">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_connect(BinAddress);
+
 handle_rpc(<<"peer_ping">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_ping(BinAddress);
+
 handle_rpc(<<"peer_refresh">>, {Param}) ->
     BinAddress = ?jsonrpc_b58_to_bin(<<"address">>, Param),
     peer_refresh(BinAddress);
+
+handle_rpc(<<"peer_gateway_info">>, {Param}) ->
+    Address = ?jsonrpc_b58_to_bin(<<"address">>, Param),
+    Chain = blockchain_worker:blockchain(),
+    Ledger = blockchain:ledger(Chain),
+    case blockchain_ledger_v1:find_gateway_info(Address, Ledger) of
+        {ok, GWInfo} ->
+            #{
+                owner_address => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(GWInfo)),
+                location => blockchain_ledger_gateway_v2:location(GWInfo),
+                alpha => blockchain_ledger_gateway_v2:alpha(GWInfo),
+                beta => blockchain_ledger_gateway_v2:beta(GWInfo),
+                delta => blockchain_ledger_gateway_v2:delta(GWInfo),
+                last_poc_challenge => blockchain_ledger_gateway_v2:last_poc_challenge(GWInfo),
+                last_poc_onion_key_hash => ?BIN_TO_B64(blockchain_ledger_gateway_v2:last_poc_onion_key_hash(GWInfo)),
+                nonce => blockchain_ledger_gateway_v2:nonce(GWInfo),
+                version => blockchain_ledger_gateway_v2:version(GWInfo),
+                neighbors => blockchain_ledger_gateway_v2:neighbors(GWInfo),
+                witnesses => blockchain_ledger_gateway_v2:witnesses(GWInfo),
+                oui => blockchain_ledger_gateway_v2:oui(GWInfo),
+                gain => blockchain_ledger_gateway_v2:gain(GWInfo),
+                elevation => blockchain_ledger_gateway_v2:elevation(GWInfo),
+                mode => blockchain_ledger_gateway_v2:mode(GWInfo),
+                last_location_nonce => blockchain_ledger_gateway_v2:last_location_nonce(GWInfo)
+            };
+        {error, E} ->
+            ?jsonrpc_error({error, "unable to retrieve account details for ~p due to error: ~p", [?BIN_TO_B58(Address), E]});
+        _ ->
+            ?jsonrpc_error({error, "unable to retrieve account details for ~p due to unknown error.", [?BIN_TO_B58(Address)]})
+    end;
+
 handle_rpc(_, _) ->
     ?jsonrpc_error(method_not_found).
 
