@@ -35,6 +35,7 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
         {ok, GWInfo} ->
             #{
                 address => ?BIN_TO_B58(Address),  
+                name => ?BIN_TO_ANIMAL(Address),
                 owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(GWInfo)),
                 location => ?MAYBE_H3(blockchain_ledger_gateway_v2:location(GWInfo)),
                 alpha => blockchain_ledger_gateway_v2:alpha(GWInfo),
@@ -139,7 +140,6 @@ format_peer(Peer) ->
     Bin = libp2p_peer:pubkey_bin(Peer),
     M = #{
         <<"address">> => libp2p_crypto:pubkey_bin_to_p2p(Bin),
-        <<"name">> => ?BIN_TO_ANIMAL(Bin),
         <<"height">> => PeerHeight,
         <<"last_block_add_time">> => PeerLastBlockTime,
         <<"last_update_time">> => Timestamp,
