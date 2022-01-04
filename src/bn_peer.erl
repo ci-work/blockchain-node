@@ -35,7 +35,7 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
         {ok, GWInfo} ->
             #{
                 owner_address => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(GWInfo)),
-                location => blockchain_ledger_gateway_v2:location(GWInfo),
+                location => ?MAYBE_H3(blockchain_ledger_gateway_v2:location(GWInfo)),
                 alpha => blockchain_ledger_gateway_v2:alpha(GWInfo),
                 beta => blockchain_ledger_gateway_v2:beta(GWInfo),
                 delta => blockchain_ledger_gateway_v2:delta(GWInfo),
