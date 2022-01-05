@@ -222,7 +222,7 @@ last_block_add_time(Peer) ->
         undefined ->
             undefined;
         LBAT when is_integer(LBAT) ->
-            LBAT;
+            floor(LBAT / 1000);
         Other ->
             lager:warning("last_block_add_time", [
                 libp2p_crypto:pubkey_bin_to_p2p(libp2p_peer:pubkey_bin(Peer)),
