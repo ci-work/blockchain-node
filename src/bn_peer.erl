@@ -69,7 +69,7 @@ peer_connect(PubKeyBin) ->
     P2PAddr = libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin),
     case libp2p_swarm:connect(SwarmTID, P2PAddr) of
         {ok, _} ->
-            #{success => true, success_string => ?TO_VALUE("connected"), address => ?TO_VALUE(P2PAddr)};
+            #{success => ?TO_VALUE(true), success_string => ?TO_VALUE("connected"), address => ?TO_VALUE(P2PAddr)};
         {error, Reason} ->
             ?jsonrpc_error({not_found, "Failed to connect to ~p: ~p~n", [P2PAddr, Reason]})
     end.
@@ -81,7 +81,7 @@ peer_ping(PubKeyBin) ->
         {ok, Session} ->
             case libp2p_session:ping(Session) of
                 {ok, RTT} ->
-                    #{success => true, success_string => ?TO_VALUE("pinged"), rtt => RTT, address => ?TO_VALUE(P2PAddr)};
+                    #{success => ?TO_VALUE(true), success_string => ?TO_VALUE("pinged"), rtt => RTT, address => ?TO_VALUE(P2PAddr)};
                 {error, Reason} ->
                     ?jsonrpc_error({not_found, "Failed to connect to ~p: ~p~n", [P2PAddr, Reason]})
             end;
@@ -142,9 +142,9 @@ peer_book_entry(PubKeyBin) ->
                     format_peer_connections(Peer)]
              );
         {error, not_found} ->
-            #{success => false, type => not_found, string => ?TO_VALUE(io_lib:format("Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]))};
+            #{success => ?TO_VALUE(false), type => not_found, string => ?TO_VALUE(io_lib:format("Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]))};
         {error, Reason} ->
-            #{success => false, type => other, string => Reason}
+            #{success => ?TO_VALUE(false), type => other, string => Reason}
     end.
 
 format_peer(Peer) ->
