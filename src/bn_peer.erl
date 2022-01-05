@@ -142,7 +142,7 @@ peer_book_entry(PubKeyBin) ->
                     format_peer_connections(Peer)]
              );
         {error, not_found} ->
-            #{success => false, type => not_found, string => io_lib:format("Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)])});
+            #{success => false, type => not_found, string => io_lib:format("Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)])};
         {error, Reason} ->
             #{success => false, type => other, string => Reason});
     end.
