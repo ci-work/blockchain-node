@@ -159,7 +159,7 @@ format_peer(Peer) ->
         <<"address">> => libp2p_crypto:pubkey_bin_to_p2p(Bin),
         <<"height">> => PeerHeight,
         <<"last_block_add_time">> => PeerLastBlockTime,
-        <<"last_update_time">> => Timestamp,
+        <<"last_update_time">> => floor(Timestamp/1000),
         <<"listen_addr_count">> => length(ListenAddrs),
         <<"connection_count">> => length(ConnectedTo),
         <<"nat">> => NatType,
@@ -222,7 +222,7 @@ last_block_add_time(Peer) ->
         undefined ->
             undefined;
         LBAT when is_integer(LBAT) ->
-            floor(LBAT / 1000);
+            LBAT;
         Other ->
             lager:warning("last_block_add_time", [
                 libp2p_crypto:pubkey_bin_to_p2p(libp2p_peer:pubkey_bin(Peer)),
