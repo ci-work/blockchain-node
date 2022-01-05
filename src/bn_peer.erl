@@ -135,7 +135,7 @@ peer_book_entry(PubKeyBin) ->
         {error, not_found} ->
             {not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]};
         {error, _}=Error ->
-            {error, Error)
+            {error, Error}
     end.
 
 format_peer(Peer) ->
