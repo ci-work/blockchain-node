@@ -50,7 +50,7 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
                 elevation => blockchain_ledger_gateway_v2:elevation(GWInfo),
                 mode => blockchain_ledger_gateway_v2:mode(GWInfo),
                 last_location_nonce => blockchain_ledger_gateway_v2:last_location_nonce(GWInfo),
-                peer_info => peer_book_entry(Address)
+                peer_info => peer_book_response(Address)
             };
         {error, E} ->
             ?jsonrpc_error({error, "unable to retrieve account details for ~p due to error: ~p", [?BIN_TO_B58(Address), E]});
@@ -114,14 +114,6 @@ peer_book_response_self(PubKeyBin) ->
     end.
 
 peer_book_response(PubKeyBin) ->
-    case peer_book_entry(PubKeyBin) of
-        {ok, Peer} ->
-            Peer;
-        {error, _}=Error ->
-            ?jsonrpc_error(Error)
-    end.
-
-peer_book_entry(PubKeyBin) ->
     TID = blockchain_swarm:tid(),
     Peerbook = libp2p_swarm:peerbook(TID),
 
@@ -133,9 +125,9 @@ peer_book_entry(PubKeyBin) ->
                     format_peer_connections(Peer)]
              );
         {error, not_found} ->
-            {not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]};
+            ?jsonrpc_error({not_found, "Address not found: ~p", [libp2p_crypto:pubkey_bin_to_p2p(PubKeyBin)]});
         {error, _}=Error ->
-            {error, Error}
+            ?jsonrpc_error(Error)
     end.
 
 format_peer(Peer) ->
