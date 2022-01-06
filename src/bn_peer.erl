@@ -34,7 +34,10 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
     case blockchain_ledger_v1:find_gateway_info(Address, Ledger) of
         {ok, GWInfo} ->
             Location = blockchain_ledger_gateway_v2:location(GWInfo),
-            TransmitScale = blockchain_hex:scale(Location, Ledger),
+            TransmitScale = case blockchain_hex:scale(Location, Ledger) of
+                {ok, V} -> blockchain_utils:normalize_float(V);
+                _ -> undefined
+            end,
             #{
                 address => ?BIN_TO_B58(Address),  
                 name => ?BIN_TO_ANIMAL(Address),
