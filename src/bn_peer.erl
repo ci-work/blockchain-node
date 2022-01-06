@@ -33,11 +33,14 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
     Ledger = blockchain:ledger(Chain),
     case blockchain_ledger_v1:find_gateway_info(Address, Ledger) of
         {ok, GWInfo} ->
+            Location = blockchain_ledger_gateway_v2:location(GWInfo),
+            TransmitScale = blockchain_hex:scale(Location, Ledger),
             #{
                 address => ?BIN_TO_B58(Address),  
                 name => ?BIN_TO_ANIMAL(Address),
                 owner => ?BIN_TO_B58(blockchain_ledger_gateway_v2:owner_address(GWInfo)),
-                location => ?MAYBE_H3(blockchain_ledger_gateway_v2:location(GWInfo)),
+                location => ?MAYBE_H3(Location),
+                transmit_scale => TransmitScale,
                 alpha => blockchain_ledger_gateway_v2:alpha(GWInfo),
                 beta => blockchain_ledger_gateway_v2:beta(GWInfo),
                 delta => blockchain_ledger_gateway_v2:delta(GWInfo),
