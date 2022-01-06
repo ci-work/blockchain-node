@@ -38,7 +38,6 @@ handle_rpc(<<"peer_gateway_info">>, {Param}) ->
                 {ok, V} -> blockchain_utils:normalize_float(V);
                 _ -> undefined
             end,
-            TransmitScale2 = blockchain_hex:scale(Location, Ledger),
             #{
                 address => ?BIN_TO_B58(Address),  
                 name => ?BIN_TO_ANIMAL(Address),
