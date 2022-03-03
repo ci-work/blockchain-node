@@ -24,9 +24,10 @@
     | #blockchain_txn_security_exchange_v1_pb{}
     | #blockchain_txn_stake_validator_v1_pb{}
     | #blockchain_txn_unstake_validator_v1_pb{}
-    | #blockchain_txn_transfer_validator_stake_v1_pb{}.
+    | #blockchain_txn_transfer_validator_stake_v1_pb{}
+    | #blockchain_txn_state_channel_open_v1_pb{}.
 
--type nonce_type() :: none | balance | gateway | security.
+-type nonce_type() :: none | balance | gateway | security | dc.
 -type nonce_address() :: libp2p_crypto:pubkey_bin() | undefined.
 -type nonce() :: non_neg_integer().
 
@@ -152,6 +153,19 @@ handle_rpc(<<"pending_transaction_submit">>, {Param}) ->
         Txn = blockchain_txn:deserialize(BinTxn),
         {ok, _} = submit_txn(Txn),
         blockchain_txn:to_json(Txn, [])
+    catch
+        _:_ -> ?jsonrpc_error(invalid_params)
+    end;
+handle_rpc(<<"pending_transaction_verify">>, {Param}) ->
+    BinTxn = ?jsonrpc_b64_to_bin(<<"txn">>, Param),
+    try
+        Txn = blockchain_txn:deserialize(BinTxn),
+        Valid = blockchain_txn:is_valid(Txn, blockchain_worker:blockchain()),
+        case Valid of
+            ok ->  <<"valid">>;
+            {error, Reason} ->
+                Reason
+        end
     catch
         _:_ -> ?jsonrpc_error(invalid_params)
     end;
@@ -299,7 +313,7 @@ get_max_nonce(Address, NonceType, Itr, {ok, _, BinTxn}, Acc) ->
 %% includes the actor whose nonce is impacted, the nonce in the transaction and %
 %% the type of nonce this is.
 %%
-%% NOTE: This list should include all tranaction types that can be submitted to
+%% NOTE: This list should include all transaction types that can be submitted to
 %% the endpoint. We try to make it match what blockchain-http supports.
 -spec nonce_info(supported_txn()) -> {nonce_address(), nonce(), nonce_type()}.
 nonce_info(#blockchain_txn_oui_v1_pb{owner = Owner}) ->
@@ -309,7 +323,7 @@ nonce_info(#blockchain_txn_routing_v1_pb{nonce = Nonce}) ->
     %% oui changes could get their own oui nonce, but since there is no good actor
     %% address for it (an oui is not a public key which a lot of code relies on, we don't
     %% track it right now. We can't lean on the owner address since an owner can
-    %% have multipe ouis
+    %% have multiple ouis
     {undefined, Nonce, none};
 nonce_info(#blockchain_txn_vars_v1_pb{nonce = Nonce}) ->
     %% A vars transaction doesn't have a clear actor at all so we don't track it
@@ -319,10 +333,10 @@ nonce_info(#blockchain_txn_add_gateway_v1_pb{gateway = GatewayAddress}) ->
     %% expected to be 0 (a gateway can only be added once)
     {GatewayAddress, 0, gateway};
 nonce_info(#blockchain_txn_assert_location_v1_pb{nonce = Nonce, gateway = GatewayAddress}) ->
-    %% Asserting a location uses the gatway nonce
+    %% Asserting a location uses the gateway nonce
     {GatewayAddress, Nonce, gateway};
 nonce_info(#blockchain_txn_assert_location_v2_pb{nonce = Nonce, gateway = GatewayAddress}) ->
-    %% Asserting a location uses the gatway nonce
+    %% Asserting a location uses the gateway nonce
     {GatewayAddress, Nonce, gateway};
 nonce_info(#blockchain_txn_payment_v1_pb{nonce = Nonce, payer = Address}) ->
     {Address, Nonce, balance};
@@ -347,7 +361,11 @@ nonce_info(#blockchain_txn_stake_validator_v1_pb{address = Address}) ->
 nonce_info(#blockchain_txn_transfer_validator_stake_v1_pb{old_address = Address}) ->
     {Address, 0, none};
 nonce_info(#blockchain_txn_unstake_validator_v1_pb{address = Address}) ->
-    {Address, 0, none}.
+    {Address, 0, none};
+nonce_info(#blockchain_txn_state_channel_open_v1_pb{owner = Address, nonce = Nonce}) ->
+    {Address, Nonce, dc};
+nonce_info(_) ->
+    undefined.
 
 -spec load_db(Dir :: file:filename_all()) -> {ok, #state{}} | {error, any()}.
 load_db(Dir) ->
