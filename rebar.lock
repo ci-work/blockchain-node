@@ -4,13 +4,8 @@
  {<<"base32">>,{pkg,<<"base32">>,<<"0.1.0">>},4},
  {<<"base64url">>,{pkg,<<"base64url">>,<<"1.0.1">>},0},
  {<<"blockchain">>,
-<<<<<<< HEAD
   {git,"https://github.com/ci-work/blockchain-core.git",
-       {ref,"a4493cebbd186a21582c9f8f7c1d217ffeb3d07e"}},
-=======
-  {git,"https://github.com/helium/blockchain-core.git",
-       {ref,"88904213c0bc1f41dea74d3670e014748968f00d"}},
->>>>>>> branch 'master' of https://github.com/helium/blockchain-node.git
+       {ref,"923f1bebf84e46e912c9ac70745f1ae0319989a1"}},
   0},
  {<<"chatterbox">>,
   {git,"https://github.com/andymck/chatterbox",
@@ -100,13 +95,8 @@
  {<<"jsx">>,{pkg,<<"jsx">>,<<"3.1.0">>},1},
  {<<"lager">>,{pkg,<<"lager">>,<<"3.9.2">>},0},
  {<<"libp2p">>,
-<<<<<<< HEAD
   {git,"https://github.com/ci-work/erlang-libp2p.git",
-       {ref,"31123d0aa0fc6499e115592c831349c8bdda2e34"}},
-=======
-  {git,"https://github.com/helium/erlang-libp2p.git",
-       {ref,"c911f0bafebe10703d51f7ec9098d785ae801d6c"}},
->>>>>>> branch 'master' of https://github.com/helium/blockchain-node.git
+       {ref,"926f732ff1e94d4cf6ea5f564505e3c250396b17"}},
   1},
  {<<"libp2p_crypto">>,
   {git,"https://github.com/helium/libp2p-crypto.git",
